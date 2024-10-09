@@ -9,7 +9,7 @@ public class BookClient extends BaseClient {
         return getAll(ApiConfig.BOOKS);
     }
 
-    public Response getBookById(int id) {
+    public Response getBookById(Object id) {
         return getWithPathParam(ApiConfig.BOOK_BY_ID, "id", id);
     }
 

@@ -5,7 +5,6 @@ import io.restassured.response.Response;
 import org.testng.Assert;
 
 import java.util.List;
-import java.util.Map;
 
 public class ResponseValidator {
 
@@ -21,32 +20,21 @@ public class ResponseValidator {
         Assert.assertFalse(ids.isEmpty(), "List of items is empty");
     }
 
-    public static void validateField(Response response, String jsonPath, Object expectedValue) {
-        Response actualValue = response.jsonPath().get(jsonPath);
+    public static void validateFieldValue(Object actualValue, String jsonPath, Object expectedValue) {
         Assert.assertEquals(actualValue, expectedValue,
                 "Expected value for '" + jsonPath + "': " + expectedValue + ", but got: " + actualValue);
+    }
+
+    public static void validateFieldNotNull(Object actualValue, String jsonPath) {
+        Assert.assertNotNull(actualValue, "The book " + jsonPath + " should not be null.");
     }
 
     public static void validateErrorMessageTitle(Response response, String errorMessage) {
         Assert.assertEquals(response.as(ErrorResponse.class).getTitle(), errorMessage, "The expected error message is not found");
     }
 
-    public static void validateFields(Response response, Map<String, Object> expectedFields) {
-        for (Map.Entry<String, Object> entry : expectedFields.entrySet()) {
-            String jsonPath = entry.getKey();
-            Object expectedValue = entry.getValue();
-            validateField(response, jsonPath, expectedValue);
-        }
+    public static void  validateFieldValueIsNotEmpty(Object actualValue, String jsonPath) {
+        Assert.assertFalse(actualValue.toString().isEmpty(), "Expected field '" + jsonPath + "' is empty.");
     }
 
-    public static void validateFieldExists(Response response, String jsonPath) {
-        Object value = response.jsonPath().get(jsonPath);
-        Assert.assertNotNull(value, "Expected field '" + jsonPath + "' to exist in the response, but it is missing.");
-    }
-
-    public static void validateContentType(Response response, String expectedContentType) {
-        String actualContentType = response.getContentType();
-        Assert.assertEquals(actualContentType, expectedContentType,
-                "Expected content type: " + expectedContentType + ", but got: " + actualContentType);
-    }
 }

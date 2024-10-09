@@ -9,8 +9,8 @@ import java.util.Random;
 public class AuthorHelper {
 
     private static final Faker faker = new Faker();
-    private AuthorClient authorClient = new AuthorClient();
-    private Random random = new Random();
+    private final AuthorClient authorClient = new AuthorClient();
+    private final Random random = new Random();
 
     public Author createAuthorWithFakeData() {
         return Author.builder()

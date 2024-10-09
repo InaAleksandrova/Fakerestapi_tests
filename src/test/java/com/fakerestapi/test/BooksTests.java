@@ -1,25 +1,19 @@
 package com.fakerestapi.test;
 
 import com.fakerestapi.test.clients.BookClient;
+import com.fakerestapi.test.constants.ErrorMessages;
+import com.fakerestapi.test.constants.JsonPathConstants;
 import com.fakerestapi.test.dataProviders.BooksDataProvider;
 import com.fakerestapi.test.models.Book;
 import com.fakerestapi.test.utils.BooksHelper;
-import com.fakerestapi.test.utils.ErrorMessages;
 import com.fakerestapi.test.validators.ResponseValidator;
 import com.google.gson.Gson;
-import io.qameta.allure.Step;
-import io.qameta.allure.testng.AllureTestNg;
 import io.restassured.response.Response;
 import org.apache.http.HttpStatus;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertNotEquals;
-import static org.testng.Assert.assertNotNull;
-
-@Listeners({AllureTestNg.class})
+//@Listeners({AllureTestNg.class})
 public class BooksTests extends BaseTests {
 
     private BookClient bookClient;
@@ -34,7 +28,6 @@ public class BooksTests extends BaseTests {
     }
 
     @Test(description = "Verify that all books are successfully displayed")
-    //@Step("")
     public void getAllBooksTest() {
         Response response = bookClient.getAllBooks();
         ResponseValidator.validateStatusCode(response, HttpStatus.SC_OK);
@@ -50,24 +43,32 @@ public class BooksTests extends BaseTests {
         int randomBookId = booksHelper.getRandomIdFromAllBooks();
 
         Response bookResponse = bookClient.getBookById(randomBookId);
-
         ResponseValidator.validateStatusCode(bookResponse, HttpStatus.SC_OK);
 
         Book retrievedBook = bookResponse.as(Book.class);
 
-        Assert.assertEquals(retrievedBook.getId(), randomBookId, "The book id in the response doesn't match the expected id");
-        Assert.assertNotNull(retrievedBook.getTitle(), "The book title should not be null.");
-        Assert.assertNotNull(retrievedBook.getDescription(), "The book description should not be null.");
-        Assert.assertNotNull(retrievedBook.getExcerpt(), "The excerpt should not be empty");
-        Assert.assertNotNull(retrievedBook.getPublishDate(), "The book publish date should not be null.");
+        ResponseValidator.validateFieldValue(retrievedBook.getId(), JsonPathConstants.BOOK_ID, randomBookId);
+        ResponseValidator.validateFieldValueIsNotEmpty(retrievedBook.getTitle(), JsonPathConstants.TITLE);
+        ResponseValidator.validateFieldValueIsNotEmpty(retrievedBook.getDescription(), JsonPathConstants.DESCRIPTION);
+        ResponseValidator.validateFieldValueIsNotEmpty(retrievedBook.getPageCount(), JsonPathConstants.PAGE_COUNT);
+        ResponseValidator.validateFieldValueIsNotEmpty(retrievedBook.getExcerpt(), JsonPathConstants.EXCERPT);
+        ResponseValidator.validateFieldValueIsNotEmpty(retrievedBook.getPublishDate(), JsonPathConstants.PUBLISH_DATE);
     }
 
     @Test(description = "Verify that a book with id bigger than the total count of the ids is not displayed")
-    public void getBookByOutOfBoundsIdTest() {
-        int invalidBookId = bookClient.getAllBooks().jsonPath().getList("id", Integer.class).size() + 1;
+    public void getBookByOutOfRangeIdTest() {
+        int invalidBookId = bookClient.getAllBooks().jsonPath().getList(JsonPathConstants.BOOK_ID, Integer.class).size() + 1;
         Response response = bookClient.getBookById(invalidBookId);
         ResponseValidator.validateStatusCode(response, HttpStatus.SC_NOT_FOUND);
         ResponseValidator.validateErrorMessageTitle(response, ErrorMessages.ERROR_MESSAGE_NOT_FOUND);
+    }
+
+    @Test(description = "Verify that a book with null id is not found")
+    public void getBookByNullId() {
+        Response response = bookClient.getBookById(null);
+        ResponseValidator.validateStatusCode(response, HttpStatus.SC_BAD_REQUEST);
+        ResponseValidator.validateErrorMessageTitle(response, ErrorMessages.ERROR_MESSAGE_VALIDATION_ERRORS);
+        //
     }
 
     @Test(description = "Verify that a new book with valid data is successfully added")
@@ -75,18 +76,18 @@ public class BooksTests extends BaseTests {
         Book newBook = booksHelper.createBookWithFakeData();
         String newBookJson = gson.toJson(newBook);
 
-        Response postResponse = bookClient.addBook(newBookJson).then().extract().response();
+        Response postResponse = bookClient.addBook(newBookJson);
         ResponseValidator.validateStatusCode(postResponse, HttpStatus.SC_OK);
-        assertNotNull(postResponse.jsonPath().getString("id"), "The bookId should not be empty");
+        ResponseValidator.validateFieldNotNull(newBookJson, JsonPathConstants.BOOK_ID);
 
         Book createdBook = postResponse.as(Book.class);
 
-        Assert.assertEquals(createdBook.getId(), newBook.getId());
-        Assert.assertEquals(createdBook.getTitle(), newBook.getTitle());
-        Assert.assertEquals(createdBook.getDescription(), newBook.getDescription());
-        Assert.assertEquals(createdBook.getPageCount(), newBook.getPageCount());
-        Assert.assertEquals(createdBook.getExcerpt(), newBook.getExcerpt());
-        Assert.assertEquals(createdBook.getPublishDate(), newBook.getPublishDate());
+        ResponseValidator.validateFieldValue(createdBook.getId(), JsonPathConstants.BOOK_ID, newBook.getId());
+        ResponseValidator.validateFieldValue(createdBook.getTitle(), JsonPathConstants.BOOK_ID, newBook.getTitle());
+        ResponseValidator.validateFieldValue(createdBook.getDescription(), JsonPathConstants.BOOK_ID, newBook.getDescription());
+        ResponseValidator.validateFieldValue(createdBook.getPageCount(), JsonPathConstants.BOOK_ID, newBook.getPageCount());
+        ResponseValidator.validateFieldValue(createdBook.getExcerpt(), JsonPathConstants.BOOK_ID, newBook.getExcerpt());
+        ResponseValidator.validateFieldValue(createdBook.getPublishDate(), JsonPathConstants.BOOK_ID, newBook.getPublishDate());
     }
 
     @Test(description = "Verify that a new book with empty values cannot be created")
@@ -94,7 +95,7 @@ public class BooksTests extends BaseTests {
         Book newBook = booksHelper.createBookWithEmptyData();
         String newBookJson = gson.toJson(newBook);
 
-        Response response = bookClient.addBook(newBookJson).then().extract().response();
+        Response response = bookClient.addBook(newBookJson);
         ResponseValidator.validateStatusCode(response, HttpStatus.SC_BAD_REQUEST);
         ResponseValidator.validateErrorMessageTitle(response, ErrorMessages.ERROR_MESSAGE_VALIDATION_ERRORS);
     }
@@ -107,7 +108,7 @@ public class BooksTests extends BaseTests {
         book.setId(id);
 
         String bookJson = gson.toJson(book);
-        Response response = bookClient.addBook(bookJson).then().extract().response();
+        Response response = bookClient.addBook(bookJson);
 
         ResponseValidator.validateStatusCode(response, expectedStatusCode);
     }
@@ -145,8 +146,8 @@ public class BooksTests extends BaseTests {
 
         int id = booksHelper.getRandomIdFromAllBooks();
 
-        Response bookForUpdate = bookClient.getBookById(id);
-        Book beforeUpdateBook = bookForUpdate.as(Book.class);
+        Response response = bookClient.getBookById(id);
+        Book newBook = response.as(Book.class);
 
         Book book = booksHelper.createBookWithFakeData();
         String bookJson = gson.toJson(book);
@@ -155,26 +156,29 @@ public class BooksTests extends BaseTests {
 
         Book updatedBook = updateBookResponse.as(Book.class);
 
-        ResponseValidator.validateStatusCode(updateBookResponse, 200);
-        assertNotEquals(updatedBook.getId(), beforeUpdateBook.getId());
-        assertNotEquals(updatedBook.getTitle(), beforeUpdateBook.getTitle());
-        assertNotEquals(updatedBook.getDescription(), beforeUpdateBook.getDescription());
-        assertNotEquals(updatedBook.getPageCount(), beforeUpdateBook.getPageCount());
-        assertNotEquals(updatedBook.getExcerpt(), beforeUpdateBook.getExcerpt());
-        assertNotEquals(updatedBook.getPublishDate(), beforeUpdateBook.getPublishDate());
+        ResponseValidator.validateStatusCode(updateBookResponse, HttpStatus.SC_OK);
+        ResponseValidator.validateFieldValue(updatedBook.getId(), JsonPathConstants.BOOK_ID, newBook.getId());
+        ResponseValidator.validateFieldValue(updatedBook.getTitle(), JsonPathConstants.TITLE, newBook.getTitle());
+        ResponseValidator.validateFieldValue(updatedBook.getDescription(), JsonPathConstants.DESCRIPTION, newBook.getDescription());
+        ResponseValidator.validateFieldValue(updatedBook.getPageCount(), JsonPathConstants.PAGE_COUNT, newBook.getPageCount());
+        ResponseValidator.validateFieldValue(updatedBook.getExcerpt(), JsonPathConstants.EXCERPT, newBook.getExcerpt());
+        ResponseValidator.validateFieldValue(updatedBook.getPublishDate(), JsonPathConstants.PUBLISH_DATE, newBook.getPublishDate());
     }
 
     @Test(description = "Verify that a book with invalid values for id cannot be updated",
             dataProvider = "createBookWithInvalidIds",
             dataProviderClass = BooksDataProvider.class)
     public void updateBookWithInvalidIdsTests(Object id, int expectedStatusCode, String errorMessage) {
+        int idForUpdate = booksHelper.getRandomIdFromAllBooks();
+
         Book book = booksHelper.createBookWithFakeData();
         book.setId(id);
 
         String bookJson = gson.toJson(book);
-        Response response = bookClient.updateBook(id, bookJson).then().extract().response();
+        Response response = bookClient.updateBook(idForUpdate, bookJson).then().extract().response();
 
         ResponseValidator.validateStatusCode(response, expectedStatusCode);
+        //validate error message
     }
 
     @Test(description = "Verify that a book with invalid values for page count cannot be updated",
@@ -193,6 +197,7 @@ public class BooksTests extends BaseTests {
         Response response = bookClient.updateBook(id, bookJson).then().extract().response();
 
         ResponseValidator.validateStatusCode(response, expectedStatusCode);
+        //validate error message
     }
 
     @Test(description = "Verify that a book with different invalid values for page count cannot be updated",
@@ -208,20 +213,27 @@ public class BooksTests extends BaseTests {
         book.setPublishDate(publishDate);
 
         String bookJson = gson.toJson(book);
-        Response response = bookClient.updateBook(id, bookJson).then().extract().response();
+        Response response = bookClient.updateBook(id, bookJson);
 
         ResponseValidator.validateStatusCode(response, expectedStatusCode);
+        //validate error message
     }
 
     @Test(description = "Verify that a book is deleted after using an existing id")
     public void deleteBookByIdTest() {
         int id = booksHelper.getRandomIdFromAllBooks();
-        bookClient.deleteBook(id).then().statusCode(HttpStatus.SC_OK);
-        bookClient.getBookById(id).then().statusCode(HttpStatus.SC_BAD_REQUEST);
+        Response responseDelete = bookClient.deleteBook(id);
+        ResponseValidator.validateStatusCode(responseDelete, HttpStatus.SC_OK);
 
+        Response responseGet = bookClient.getBookById(id);
+        ResponseValidator.validateStatusCode(responseGet, HttpStatus.SC_NOT_FOUND);
     }
 
-    //delete book with invalid id - number out of range
+    @Test(description = "Verify that a book with invalid id cannot be deleted")
+    public void deleteBookByInvalidIdTest() {
+        int numberOutOfRange = bookClient.getAllBooks().jsonPath().getList("id", Integer.class).size() + 1;
 
-    //delete book with invalid id - invalid id format - ex 1a
+        Response response = bookClient.deleteBook(numberOutOfRange);
+        ResponseValidator.validateStatusCode(response, HttpStatus.SC_BAD_REQUEST);
+    }
 }

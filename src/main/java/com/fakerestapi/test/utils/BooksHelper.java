@@ -11,11 +11,12 @@ import java.util.Random;
 public class BooksHelper {
 
     private final Faker faker = new Faker();
-    private Random random = new Random();
-    private BookClient bookClient = new BookClient();
+    private final Random random = new Random();
+    private final BookClient bookClient = new BookClient();
 
     public Book createBookWithFakeData() {
         return Book.builder()
+                .id(faker.number().numberBetween(500, 1000))
                 .title(faker.book().title())
                 .description(faker.lorem().paragraph())
                 .pageCount(faker.number().numberBetween(1, 1000))
