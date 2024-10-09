@@ -4,13 +4,14 @@ import com.fakerestapi.test.clients.AuthorClient;
 import com.fakerestapi.test.models.Author;
 import com.fakerestapi.test.utils.AuthorHelper;
 import com.fakerestapi.test.validators.ResponseValidator;
+import com.google.gson.Gson;
 import io.restassured.response.Response;
+import org.apache.http.HttpStatus;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.List;
-import java.util.Random;
 
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
@@ -18,30 +19,30 @@ import static org.testng.Assert.assertNotNull;
 public class AuthorsTests extends BaseTests {
 
     private AuthorClient authorClient;
-    private AuthorHelper authorsFakerUtil;
-    private Random random;
+    private AuthorHelper authorHelper;
+    private Gson gson;
 
     @BeforeClass
     public void setUpAuthorsTests() {
         authorClient = new AuthorClient();
-        authorsFakerUtil = new AuthorHelper();
-        random = new Random();
+        authorHelper = new AuthorHelper();
+        gson = new Gson();
     }
 
-    @Test(description = "Get a list of all authors", priority = 1)
+    @Test(description = "Verify a list of all authors is displayed")
     public void getAllAuthorsTest() {
         Response response = authorClient.getAllAuthors();
-        ResponseValidator.validateStatusCode(response, 200);
+        ResponseValidator.validateStatusCode(response, HttpStatus.SC_OK);
         ResponseValidator.validateListOfIdsNotEmpty(response);
     }
 
-    @Test(description = "Get an author by a valid ID", priority = 2)
+    @Test(description = "Verify an author can be retrieved by a valid id")
     public void getAuthorByIdTest() {
         Response allAuthorsResponse = authorClient.getAllAuthors();
-        ResponseValidator.validateStatusCode(allAuthorsResponse, 200);
+        ResponseValidator.validateStatusCode(allAuthorsResponse, HttpStatus.SC_OK);
         ResponseValidator.validateListOfIdsNotEmpty(allAuthorsResponse);
 
-        int randomId = random.nextInt(authorClient.getAllAuthors().jsonPath().getList("id", Integer.class).size());
+        int randomId = authorHelper.getRandomAuthorId();
 
         Response response = authorClient.getAuthorById(randomId);
         ResponseValidator.validateStatusCode(allAuthorsResponse, 200);
@@ -53,20 +54,22 @@ public class AuthorsTests extends BaseTests {
         Assert.assertNotNull(retrievedAuthor.getLastName(), "Last name field should not be null");
     }
 
-    @Test(description = "Retrieve an author by invalid ID", priority = 3)
-    public void getAuthorByInvalidId() {
-
+    @Test(description = "Verify that an author cannot be retrieved using an id bigger than the authors list size")
+    public void getAuthorByOutOfBoundsId() {
         List<Integer> authors = authorClient.getAllAuthors().jsonPath().getList("id", Integer.class);
         int invalidAuthorId = authors.size() + 1;
+
         Response response = authorClient.getAuthorById(invalidAuthorId);
-        ResponseValidator.validateStatusCode(response, 404);
+        ResponseValidator.validateStatusCode(response, HttpStatus.SC_NOT_FOUND);
         //add validation for error message text
     }
 
-    @Test(description = "Add a new author to authors repository", priority = 4)
+    @Test(description = "Add a new author to authors repository")
     public void addNewAuthorTest() {;
-        Author newAuthor = authorsFakerUtil.createAuthorWithFakeData();
-        Response postResponse = authorClient.addAuthor(newAuthor).then().extract().response();
+        Author newAuthor = authorHelper.createAuthorWithFakeData();
+        String newAuthorJson = gson.toJson(newAuthor);
+
+        Response postResponse = authorClient.addAuthor(newAuthorJson).then().extract().response();
 
         ResponseValidator.validateStatusCode(postResponse, 200);
         assertNotNull(postResponse.jsonPath().getString("id"), "The author ID should not be empty");
@@ -79,19 +82,20 @@ public class AuthorsTests extends BaseTests {
         Assert.assertEquals(createdAuthor.getLastName(), newAuthor.getLastName());
     }
 
-    @Test(description = "Update an existing author data", priority = 5)
+    @Test(description = "Update an existing author data")
     public void updateAuthorById() {
         Response getAllAuthorsResponse = authorClient.getAllAuthors();
         ResponseValidator.validateStatusCode(getAllAuthorsResponse, 200);
 
-        int id = random.nextInt(authorClient.getAllAuthors().jsonPath().getList("id", Integer.class).size());
+        int id = authorHelper.getRandomAuthorId();
 
         Response authorForUpdate = authorClient.getAuthorById(id);
         Author beforeUpdateAuthor = authorForUpdate.as(Author.class);
 
-        Author author = authorsFakerUtil.createAuthorWithFakeData();
+        Author author = authorHelper.createAuthorWithFakeData();
+        String authorJson = gson.toJson(author);
 
-        Response updateAuthorResponse = authorClient.updateAuthor(id, author);
+        Response updateAuthorResponse = authorClient.updateAuthor(id, authorJson);
 
         Author updatedAuthor = updateAuthorResponse.as(Author.class);
 
@@ -102,9 +106,9 @@ public class AuthorsTests extends BaseTests {
         assertNotEquals(updatedAuthor.getLastName(), beforeUpdateAuthor.getLastName());
     }
 
-    @Test(description = "Delete an author", priority = 6)
+    @Test(description = "Delete an author")
     public void deleteAuthorById() {
-        int id = random.nextInt(authorClient.getAllAuthors().jsonPath().getList("id", Integer.class).size());
+        int id = authorHelper.getRandomAuthorId();
         authorClient.deleteAuthor(id).then().statusCode(200);
         authorClient.deleteAuthor(id).then().statusCode(404);
     }

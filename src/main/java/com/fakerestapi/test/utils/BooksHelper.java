@@ -1,14 +1,18 @@
 package com.fakerestapi.test.utils;
 
+import com.fakerestapi.test.clients.BookClient;
 import com.fakerestapi.test.models.Book;
 import com.github.javafaker.Faker;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Random;
 
 public class BooksHelper {
 
     private final Faker faker = new Faker();
+    private Random random = new Random();
+    private BookClient bookClient = new BookClient();
 
     public Book createBookWithFakeData() {
         return Book.builder()
@@ -29,6 +33,10 @@ public class BooksHelper {
                 .excerpt(null)
                 .publishDate(null)
                 .build();
+    }
+
+    public int getRandomIdFromAllBooks() {
+        return random.nextInt(bookClient.getAllBooks().jsonPath().getList("id", Integer.class).size());
     }
 
 }

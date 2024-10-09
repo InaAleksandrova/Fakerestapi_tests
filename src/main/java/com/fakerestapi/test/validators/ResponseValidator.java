@@ -1,5 +1,6 @@
 package com.fakerestapi.test.validators;
 
+import com.fakerestapi.test.models.ErrorResponse;
 import io.restassured.response.Response;
 import org.testng.Assert;
 
@@ -24,6 +25,10 @@ public class ResponseValidator {
         Response actualValue = response.jsonPath().get(jsonPath);
         Assert.assertEquals(actualValue, expectedValue,
                 "Expected value for '" + jsonPath + "': " + expectedValue + ", but got: " + actualValue);
+    }
+
+    public static void validateErrorMessageTitle(Response response, String errorMessage) {
+        Assert.assertEquals(response.as(ErrorResponse.class).getTitle(), errorMessage, "The expected error message is not found");
     }
 
     public static void validateFields(Response response, Map<String, Object> expectedFields) {

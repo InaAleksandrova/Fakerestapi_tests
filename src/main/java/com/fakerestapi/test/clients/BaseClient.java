@@ -23,13 +23,13 @@ public class BaseClient {
     }
 
     // POST method to send data to the specified endpoint
-    public Response post(String endpoint, Object body) {
-        return request.body(body).when().post(endpoint);
+    public Response post(String endpoint, String bodyJson) {
+        return request.body(bodyJson).when().post(endpoint);
     }
 
     // PUT method with path parameter, like /Books/{id}
-    public Response putWithPathParam(String endpoint, String paramName, Object paramValue, Object body) {
-        return request.pathParam(paramName, paramValue).body(body).when().put(endpoint);
+    public Response putWithPathParam(String endpoint, String paramName, Object paramValue, String bodyJson) {
+        return request.pathParam(paramName, paramValue).body(bodyJson).when().put(endpoint);
     }
 
     // DELETE method with path parameter, like /Books/{id}

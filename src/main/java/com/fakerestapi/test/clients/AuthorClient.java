@@ -14,12 +14,12 @@ public class AuthorClient extends BaseClient {
         return getWithPathParam(ApiConfig.AUTHOR_BY_ID, "id", id);
     }
 
-    public Response addAuthor(Author author) {
-        return post(ApiConfig.AUTHORS, author);
+    public Response addAuthor(String authorJson) {
+        return post(ApiConfig.AUTHORS, authorJson);
     }
 
-    public Response updateAuthor(int id, Author author) {
-        return putWithPathParam(ApiConfig.AUTHOR_BY_ID, "id", id, author);
+    public Response updateAuthor(int id, String authorJson) {
+        return putWithPathParam(ApiConfig.AUTHOR_BY_ID, "id", id, authorJson);
     }
 
     public Response deleteAuthor(int id) {

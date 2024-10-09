@@ -1,11 +1,16 @@
 package com.fakerestapi.test.utils;
 
+import com.fakerestapi.test.clients.AuthorClient;
 import com.fakerestapi.test.models.Author;
 import com.github.javafaker.Faker;
+
+import java.util.Random;
 
 public class AuthorHelper {
 
     private static final Faker faker = new Faker();
+    private AuthorClient authorClient = new AuthorClient();
+    private Random random = new Random();
 
     public Author createAuthorWithFakeData() {
         return Author.builder()
@@ -22,5 +27,9 @@ public class AuthorHelper {
                 .firstName(null)
                 .lastName(null)
                 .build();
+    }
+
+    public int getRandomAuthorId() {
+        return random.nextInt(authorClient.getAllAuthors().jsonPath().getList("id", Integer.class).size());
     }
 }
