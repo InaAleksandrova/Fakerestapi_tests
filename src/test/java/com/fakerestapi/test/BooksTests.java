@@ -1,11 +1,12 @@
 package com.fakerestapi.test;
 
 import com.fakerestapi.test.clients.BookClient;
-import com.fakerestapi.test.constants.ErrorMessages;
+import com.fakerestapi.test.constants.ErrorMessagesConstants;
 import com.fakerestapi.test.constants.JsonPathConstants;
 import com.fakerestapi.test.dataProviders.BooksDataProvider;
 import com.fakerestapi.test.models.Book;
 import com.fakerestapi.test.utils.BooksHelper;
+import com.fakerestapi.test.validators.ErrorResponseValidator;
 import com.fakerestapi.test.validators.ResponseValidator;
 import com.google.gson.Gson;
 import io.restassured.response.Response;
@@ -60,15 +61,15 @@ public class BooksTests extends BaseTests {
         int invalidBookId = bookClient.getAllBooks().jsonPath().getList(JsonPathConstants.BOOK_ID, Integer.class).size() + 1;
         Response response = bookClient.getBookById(invalidBookId);
         ResponseValidator.validateStatusCode(response, HttpStatus.SC_NOT_FOUND);
-        ResponseValidator.validateErrorMessageTitle(response, ErrorMessages.ERROR_MESSAGE_NOT_FOUND);
+        ResponseValidator.validateErrorMessageTitle(response, ErrorMessagesConstants.ERROR_MESSAGE_NOT_FOUND);
     }
 
     @Test(description = "Verify that a book with null id is not found")
     public void getBookByNullId() {
         Response response = bookClient.getBookById(null);
         ResponseValidator.validateStatusCode(response, HttpStatus.SC_BAD_REQUEST);
-        ResponseValidator.validateErrorMessageTitle(response, ErrorMessages.ERROR_MESSAGE_VALIDATION_ERRORS);
-        //
+        ResponseValidator.validateErrorMessageTitle(response, ErrorMessagesConstants.ERROR_MESSAGE_VALIDATION_ERRORS);
+        ErrorResponseValidator.validateErrorResponse(response, JsonPathConstants.BOOK_ID, ErrorMessagesConstants.ERROR_MESSAGE_NOT_VALID_VALUE);
     }
 
     @Test(description = "Verify that a new book with valid data is successfully added")
@@ -97,7 +98,7 @@ public class BooksTests extends BaseTests {
 
         Response response = bookClient.addBook(newBookJson);
         ResponseValidator.validateStatusCode(response, HttpStatus.SC_BAD_REQUEST);
-        ResponseValidator.validateErrorMessageTitle(response, ErrorMessages.ERROR_MESSAGE_VALIDATION_ERRORS);
+        ResponseValidator.validateErrorMessageTitle(response, ErrorMessagesConstants.ERROR_MESSAGE_VALIDATION_ERRORS);
     }
 
     @Test(description = "Verify that a new book with different invalid values for id cannot be added ",

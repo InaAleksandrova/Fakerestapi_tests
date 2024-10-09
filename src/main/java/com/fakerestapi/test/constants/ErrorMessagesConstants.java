@@ -1,6 +1,6 @@
 package com.fakerestapi.test.constants;
 
-public class ErrorMessages {
+public class ErrorMessagesConstants {
 
     public static final String ERROR_MESSAGE_VALIDATION_ERRORS = "One or more validation errors occurred.";
     public static final String ERROR_MESSAGE_NOT_FOUND = "Not found";

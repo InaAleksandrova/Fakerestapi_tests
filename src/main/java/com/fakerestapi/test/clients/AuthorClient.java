@@ -10,7 +10,7 @@ public class AuthorClient extends BaseClient {
         return getAll(ApiConfig.AUTHORS);
     }
 
-    public Response getAuthorById(int id) {
+    public Response getAuthorById(Object id) {
         return getWithPathParam(ApiConfig.AUTHOR_BY_ID, "id", id);
     }
 
