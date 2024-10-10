@@ -18,11 +18,11 @@ public class AuthorClient extends BaseClient {
         return post(ApiConfig.AUTHORS, authorJson);
     }
 
-    public Response updateAuthor(int id, String authorJson) {
+    public Response updateAuthor(Object id, String authorJson) {
         return putWithPathParam(ApiConfig.AUTHOR_BY_ID, "id", id, authorJson);
     }
 
-    public Response deleteAuthor(int id) {
+    public Response deleteAuthor(Object id) {
         return deleteWithPathParam(ApiConfig.AUTHOR_BY_ID, "id", id);
     }
 }

@@ -1,6 +1,5 @@
 package com.fakerestapi.test.clients;
 
-import com.fakerestapi.test.config.ApiConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;

@@ -26,7 +26,6 @@ public class BooksDataProvider {
         };
     }
 
-
     @DataProvider(name = "createBookWithInvalidPublishDate")
     public static Object[][] createBookWithInvalidPublishDate() {
         return new Object[][] {

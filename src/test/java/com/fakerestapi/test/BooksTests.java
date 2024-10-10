@@ -98,7 +98,7 @@ public class BooksTests extends BaseTests {
     @Test(description = "Verify that a new book with different invalid values for id cannot be added ",
             dataProvider = "createBookWithInvalidIds",
             dataProviderClass = BooksDataProvider.class)
-    public void addNewBookWithInvalidIdsTest(Object id, int expectedStatusCode, String errorMessage) {
+    public void addNewBookWithInvalidIdsTest(Object id, int expectedStatusCode) {
         Book book = booksHelper.createBookWithFakeData();
         book.setId(id);
 

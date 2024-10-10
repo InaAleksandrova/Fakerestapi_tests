@@ -10,5 +10,6 @@ public class ErrorMessagesConstants {
     public static final String ERROR_PAGE_COUNT = "$.pageCount";
     public static final String ERROR_PUBLISH_DATE = "$.publishDate";
     public static final String ERROR_TITLE = "$.title";
+    public static final String ERROR_ID_BOOK = "$.idBook";
 
 }
