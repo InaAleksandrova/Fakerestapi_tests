@@ -91,22 +91,13 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0</version>
                 <configuration>
+                    <reportsDirectory>${project.build.directory}/allure-results</reportsDirectory>
                     <suiteXmlFiles>
                         <suiteXmlFiles>
                             <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                             <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                         </suiteXmlFiles>
                     </suiteXmlFiles>
-                    <properties>
-                        <systemProperties>
-                            <property>
-                                <property>
-                                    <name>allure.results.directory</name>
-                                    <value>${project.build.directory}/allure-results</value>
-                                </property>
-                            </property>
-                        </systemProperties>
-                    </properties>
                 </configuration>
             </plugin>
             <plugin>
