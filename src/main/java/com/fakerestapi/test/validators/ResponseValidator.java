@@ -1,6 +1,5 @@
 package com.fakerestapi.test.validators;
 
-import com.fakerestapi.test.models.ErrorResponse;
 import io.restassured.response.Response;
 import org.testng.Assert;
 
@@ -27,10 +26,6 @@ public class ResponseValidator {
 
     public static void validateFieldNotNull(Object actualValue, String jsonPath) {
         Assert.assertNotNull(actualValue, "The book " + jsonPath + " should not be null.");
-    }
-
-    public static void validateErrorMessageTitle(Response response, String errorMessage) {
-        Assert.assertEquals(response.as(ErrorResponse.class).getTitle(), errorMessage, "The expected error message is not found");
     }
 
     public static void  validateFieldValueIsNotEmpty(Object actualValue, String jsonPath) {

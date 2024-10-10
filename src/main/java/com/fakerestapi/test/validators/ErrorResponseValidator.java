@@ -1,31 +1,37 @@
 package com.fakerestapi.test.validators;
 
+import com.fakerestapi.test.constants.ErrorMessagesConstants;
 import com.fakerestapi.test.models.ErrorResponse;
 import io.restassured.response.Response;
 import org.testng.Assert;
 
 import java.util.List;
+import java.util.Map;
 
-import static com.fakerestapi.test.constants.ErrorMessagesConstants.ERROR_MESSAGE_NOT_VALID_VALUE;
-import static com.fakerestapi.test.constants.ErrorMessagesConstants.ERROR_MESSAGE_VALIDATION_ERRORS;
+import static com.fakerestapi.test.constants.ErrorMessagesConstants.ERROR_MESSAGE_COULD_NOT_CONVERT_TO_SYSTEM;
 
 public class ErrorResponseValidator {
 
-    public static void validateErrorResponse(Response response, String jsonPath, String value) {
-        // Deserialize the response into the ErrorResponse model
+
+    public static void validateErrorMessageTitle(Response response, String errorMessage) {
         ErrorResponse errorResponse = response.as(ErrorResponse.class);
-
-        // Validate the title
-        Assert.assertEquals(errorResponse.getTitle(),ERROR_MESSAGE_VALIDATION_ERRORS,
-                "Expected error title doesn't match.");
-
-        // Validate the 'id' field error message
-        List<String> idErrors = errorResponse.getErrors().get(value);
-        Assert.assertNotNull(idErrors, String.format("Expected %s errors to be present.", value));
-        Assert.assertTrue(idErrors.contains(String.format(ERROR_MESSAGE_NOT_VALID_VALUE, value)),
-                String.format("Expected %s error message doesn't match.", jsonPath));
+        Assert.assertEquals(errorResponse.getTitle(), errorMessage, "The expected error message is not found");
     }
 
+    public static void validateErrorResponse(Response response, String value) {
+        ErrorResponse errorResponse = response.as(ErrorResponse.class);
 
+        Map<String, List<String>> errors = errorResponse.getErrors();
+        if (errors == null) {
+            Assert.fail("The 'errors' map is null.");
+        } else if (!errors.containsKey(value)) {
+            Assert.fail(String.format("The %s field is missing from the errors map.", value));
+        } else {
+            List<String> idErrors = errorResponse.getErrors().get(value);
+            Assert.assertNotNull(idErrors, String.format("Expected %s errors to be present.", value));
+            Assert.assertTrue(idErrors.get(0).contains(ERROR_MESSAGE_COULD_NOT_CONVERT_TO_SYSTEM),
+                        String.format("The %s error message is not displayed", value));
+        }
+    }
 
 }

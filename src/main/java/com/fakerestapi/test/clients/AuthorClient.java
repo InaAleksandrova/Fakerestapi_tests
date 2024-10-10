@@ -1,7 +1,7 @@
 package com.fakerestapi.test.clients;
 
 import com.fakerestapi.test.config.ApiConfig;
-import com.fakerestapi.test.models.Author;
+import com.fakerestapi.test.constants.JsonPathConstants;
 import io.restassured.response.Response;
 
 public class AuthorClient extends BaseClient {
@@ -11,7 +11,7 @@ public class AuthorClient extends BaseClient {
     }
 
     public Response getAuthorById(Object id) {
-        return getWithPathParam(ApiConfig.AUTHOR_BY_ID, "id", id);
+        return getWithPathParam(ApiConfig.AUTHOR_BY_ID, JsonPathConstants.AUTHOR_ID, id);
     }
 
     public Response addAuthor(String authorJson) {

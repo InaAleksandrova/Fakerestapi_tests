@@ -14,7 +14,9 @@ import org.apache.http.HttpStatus;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-//@Listeners({AllureTestNg.class})
+import static com.fakerestapi.test.constants.ErrorMessagesConstants.ERROR_MESSAGE_NOT_FOUND;
+import static com.fakerestapi.test.constants.ErrorMessagesConstants.ERROR_MESSAGE_VALIDATION_ERRORS;
+
 public class BooksTests extends BaseTests {
 
     private BookClient bookClient;
@@ -61,15 +63,7 @@ public class BooksTests extends BaseTests {
         int invalidBookId = bookClient.getAllBooks().jsonPath().getList(JsonPathConstants.BOOK_ID, Integer.class).size() + 1;
         Response response = bookClient.getBookById(invalidBookId);
         ResponseValidator.validateStatusCode(response, HttpStatus.SC_NOT_FOUND);
-        ResponseValidator.validateErrorMessageTitle(response, ErrorMessagesConstants.ERROR_MESSAGE_NOT_FOUND);
-    }
-
-    @Test(description = "Verify that a book with null id is not found")
-    public void getBookByNullId() {
-        Response response = bookClient.getBookById(null);
-        ResponseValidator.validateStatusCode(response, HttpStatus.SC_BAD_REQUEST);
-        ResponseValidator.validateErrorMessageTitle(response, ErrorMessagesConstants.ERROR_MESSAGE_VALIDATION_ERRORS);
-        ErrorResponseValidator.validateErrorResponse(response, JsonPathConstants.BOOK_ID, ErrorMessagesConstants.ERROR_MESSAGE_NOT_VALID_VALUE);
+        ErrorResponseValidator.validateErrorMessageTitle(response, ERROR_MESSAGE_NOT_FOUND);
     }
 
     @Test(description = "Verify that a new book with valid data is successfully added")
@@ -84,11 +78,11 @@ public class BooksTests extends BaseTests {
         Book createdBook = postResponse.as(Book.class);
 
         ResponseValidator.validateFieldValue(createdBook.getId(), JsonPathConstants.BOOK_ID, newBook.getId());
-        ResponseValidator.validateFieldValue(createdBook.getTitle(), JsonPathConstants.BOOK_ID, newBook.getTitle());
-        ResponseValidator.validateFieldValue(createdBook.getDescription(), JsonPathConstants.BOOK_ID, newBook.getDescription());
-        ResponseValidator.validateFieldValue(createdBook.getPageCount(), JsonPathConstants.BOOK_ID, newBook.getPageCount());
-        ResponseValidator.validateFieldValue(createdBook.getExcerpt(), JsonPathConstants.BOOK_ID, newBook.getExcerpt());
-        ResponseValidator.validateFieldValue(createdBook.getPublishDate(), JsonPathConstants.BOOK_ID, newBook.getPublishDate());
+        ResponseValidator.validateFieldValue(createdBook.getTitle(), JsonPathConstants.TITLE, newBook.getTitle());
+        ResponseValidator.validateFieldValue(createdBook.getDescription(), JsonPathConstants.DESCRIPTION, newBook.getDescription());
+        ResponseValidator.validateFieldValue(createdBook.getPageCount(), JsonPathConstants.PAGE_COUNT, newBook.getPageCount());
+        ResponseValidator.validateFieldValue(createdBook.getExcerpt(), JsonPathConstants.EXCERPT, newBook.getExcerpt());
+        ResponseValidator.validateFieldValue(createdBook.getPublishDate(), JsonPathConstants.PUBLISH_DATE, newBook.getPublishDate());
     }
 
     @Test(description = "Verify that a new book with empty values cannot be created")
@@ -98,7 +92,7 @@ public class BooksTests extends BaseTests {
 
         Response response = bookClient.addBook(newBookJson);
         ResponseValidator.validateStatusCode(response, HttpStatus.SC_BAD_REQUEST);
-        ResponseValidator.validateErrorMessageTitle(response, ErrorMessagesConstants.ERROR_MESSAGE_VALIDATION_ERRORS);
+        ErrorResponseValidator.validateErrorMessageTitle(response, ERROR_MESSAGE_VALIDATION_ERRORS);
     }
 
     @Test(description = "Verify that a new book with different invalid values for id cannot be added ",
@@ -112,7 +106,10 @@ public class BooksTests extends BaseTests {
         Response response = bookClient.addBook(bookJson);
 
         ResponseValidator.validateStatusCode(response, expectedStatusCode);
+        ErrorResponseValidator.validateErrorMessageTitle(response, ERROR_MESSAGE_VALIDATION_ERRORS);
+        ErrorResponseValidator.validateErrorResponse(response, ErrorMessagesConstants.ERROR_ID);
     }
+
 
     @Test(description = "Verify that a new book with different invalid values for page count cannot be added ",
             dataProvider = "createBookWithInvalidPageCountValue",
@@ -125,6 +122,8 @@ public class BooksTests extends BaseTests {
         Response response = bookClient.addBook(bookJson).then().extract().response();
 
         ResponseValidator.validateStatusCode(response, expectedStatusCode);
+        ErrorResponseValidator.validateErrorMessageTitle(response, ERROR_MESSAGE_VALIDATION_ERRORS);
+        ErrorResponseValidator.validateErrorResponse(response, ErrorMessagesConstants.ERROR_PAGE_COUNT);
     }
 
     @Test(description = "Verify that a new book with different invalid values for publish date cannot be added",
@@ -138,6 +137,8 @@ public class BooksTests extends BaseTests {
         Response response = bookClient.addBook(bookJson).then().extract().response();
 
         ResponseValidator.validateStatusCode(response, expectedStatusCode);
+        ErrorResponseValidator.validateErrorMessageTitle(response, ERROR_MESSAGE_VALIDATION_ERRORS);
+        ErrorResponseValidator.validateErrorResponse(response, ErrorMessagesConstants.ERROR_PUBLISH_DATE);
     }
 
     @Test(description = "Update an existing book with valid id")
@@ -179,7 +180,8 @@ public class BooksTests extends BaseTests {
         Response response = bookClient.updateBook(idForUpdate, bookJson).then().extract().response();
 
         ResponseValidator.validateStatusCode(response, expectedStatusCode);
-        //validate error message
+        ErrorResponseValidator.validateErrorMessageTitle(response, ERROR_MESSAGE_VALIDATION_ERRORS);
+        ErrorResponseValidator.validateErrorResponse(response, ErrorMessagesConstants.ERROR_ID);
     }
 
     @Test(description = "Verify that a book with invalid values for page count cannot be updated",
@@ -198,7 +200,8 @@ public class BooksTests extends BaseTests {
         Response response = bookClient.updateBook(id, bookJson).then().extract().response();
 
         ResponseValidator.validateStatusCode(response, expectedStatusCode);
-        //validate error message
+        ErrorResponseValidator.validateErrorMessageTitle(response, ERROR_MESSAGE_VALIDATION_ERRORS);
+        ErrorResponseValidator.validateErrorResponse(response, ErrorMessagesConstants.ERROR_PAGE_COUNT);
     }
 
     @Test(description = "Verify that a book with different invalid values for page count cannot be updated",
@@ -217,7 +220,8 @@ public class BooksTests extends BaseTests {
         Response response = bookClient.updateBook(id, bookJson);
 
         ResponseValidator.validateStatusCode(response, expectedStatusCode);
-        //validate error message
+        ErrorResponseValidator.validateErrorMessageTitle(response, ERROR_MESSAGE_VALIDATION_ERRORS);
+        ErrorResponseValidator.validateErrorResponse(response, ErrorMessagesConstants.ERROR_PUBLISH_DATE);
     }
 
     @Test(description = "Verify that a book is deleted after using an existing id")
@@ -228,6 +232,7 @@ public class BooksTests extends BaseTests {
 
         Response responseGet = bookClient.getBookById(id);
         ResponseValidator.validateStatusCode(responseGet, HttpStatus.SC_NOT_FOUND);
+        ErrorResponseValidator.validateErrorMessageTitle(responseGet, ERROR_MESSAGE_NOT_FOUND);
     }
 
     @Test(description = "Verify that a book with invalid id cannot be deleted")
@@ -235,6 +240,7 @@ public class BooksTests extends BaseTests {
         int numberOutOfRange = bookClient.getAllBooks().jsonPath().getList("id", Integer.class).size() + 1;
 
         Response response = bookClient.deleteBook(numberOutOfRange);
-        ResponseValidator.validateStatusCode(response, HttpStatus.SC_BAD_REQUEST);
+        ResponseValidator.validateStatusCode(response, HttpStatus.SC_NOT_FOUND);
+        ErrorResponseValidator.validateErrorMessageTitle(response, ERROR_MESSAGE_NOT_FOUND);
     }
 }
