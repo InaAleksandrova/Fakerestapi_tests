@@ -1,6 +1,5 @@
 package com.fakerestapi.test.validators;
 
-import com.fakerestapi.test.models.ErrorResponse;
 import io.restassured.response.Response;
 import org.testng.Assert;
 
@@ -12,7 +11,7 @@ public class ResponseValidator {
     public static void validateStatusCode(Response response, int expectedStatusCode) {
         int actualStatusCode = response.getStatusCode();
         Assert.assertEquals(actualStatusCode, expectedStatusCode,
-                "Expected status code: " + expectedStatusCode + ", but got: " + actualStatusCode);
+                String.format("Expected status code: %s, but got: %s", expectedStatusCode, actualStatusCode));
     }
 
     public static void validateListOfIdsNotEmpty(Response response) {
@@ -22,19 +21,17 @@ public class ResponseValidator {
 
     public static void validateFieldValue(Object actualValue, String jsonPath, Object expectedValue) {
         Assert.assertEquals(actualValue, expectedValue,
-                "Expected value for '" + jsonPath + "': " + expectedValue + ", but got: " + actualValue);
+                String.format("Expected value for  '%s': %s , but got: %s", jsonPath, expectedValue, actualValue));
     }
 
     public static void validateFieldNotNull(Object actualValue, String jsonPath) {
-        Assert.assertNotNull(actualValue, "The book " + jsonPath + " should not be null.");
+        Assert.assertNotNull(actualValue,
+                String.format("The book %s should not be null.", jsonPath));
     }
 
-    public static void validateErrorMessageTitle(Response response, String errorMessage) {
-        Assert.assertEquals(response.as(ErrorResponse.class).getTitle(), errorMessage, "The expected error message is not found");
-    }
-
-    public static void  validateFieldValueIsNotEmpty(Object actualValue, String jsonPath) {
-        Assert.assertFalse(actualValue.toString().isEmpty(), "Expected field '" + jsonPath + "' is empty.");
+    public static void validateFieldValueIsNotEmpty(Object actualValue, String jsonPath) {
+        Assert.assertFalse(actualValue.toString().isEmpty(),
+                String.format("Expected field '%s' is empty.", jsonPath));
     }
 
 }

@@ -14,6 +14,7 @@ public class AuthorHelper {
 
     public Author createAuthorWithFakeData() {
         return Author.builder()
+                .id(faker.number().numberBetween(1000, 2000))
                 .firstName(faker.name().firstName())
                 .lastName(faker.name().lastName())
                 .idBook(faker.number().numberBetween(1, 1000))
