@@ -109,6 +109,7 @@
                 <version>${maven.allure.version}</version>
                 <configuration>
                     <reportDirectory>${project.build.directory}/allure-report</reportDirectory>
+                    <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
                 </configuration>
             </plugin>
         </plugins>
