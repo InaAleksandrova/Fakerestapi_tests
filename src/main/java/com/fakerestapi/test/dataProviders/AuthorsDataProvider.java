@@ -14,4 +14,12 @@ public class AuthorsDataProvider {
         };
     }
 
+    @DataProvider(name = "updateAuthorWithInvalidIds")
+    public static Object[][] updateAuthorWithInvalidIds() {
+        return new Object[][] {
+                {-1, HttpStatus.SC_BAD_REQUEST, "Negative number for id is not accepted"},
+                {"id", HttpStatus.SC_BAD_REQUEST, "String value for id is not accepted"}
+        };
+    }
+
 }

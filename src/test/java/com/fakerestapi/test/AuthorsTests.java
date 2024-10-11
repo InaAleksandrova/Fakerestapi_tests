@@ -5,7 +5,6 @@ import com.fakerestapi.test.constants.ErrorMessagesConstants;
 import com.fakerestapi.test.constants.JsonPathConstants;
 import com.fakerestapi.test.dataProviders.AuthorsDataProvider;
 import com.fakerestapi.test.models.Author;
-import com.fakerestapi.test.models.Book;
 import com.fakerestapi.test.utils.AuthorHelper;
 import com.fakerestapi.test.validators.ErrorResponseValidator;
 import com.fakerestapi.test.validators.ResponseValidator;
@@ -154,7 +153,7 @@ public class AuthorsTests extends BaseTests {
     }
 
     @Test(description = "Verify that an author with invalid ids cannot be updated",
-            dataProvider = "createAuthorWithInvalidIds",
+            dataProvider = "updateAuthorWithInvalidIds",
             dataProviderClass = AuthorsDataProvider.class)
     public void updateNewAuthorWithInvalidIdsTest(Object id, int expectedStatusCode, String errorMessage) {
         Author author = authorHelper.createAuthorWithFakeData();
@@ -169,7 +168,7 @@ public class AuthorsTests extends BaseTests {
     }
 
     @Test(description = "Verify that an author with invalid book ids cannot be updated",
-            dataProvider = "createAuthorWithInvalidIds",
+            dataProvider = "updateAuthorWithInvalidIds",
             dataProviderClass = AuthorsDataProvider.class)
     public void updateAuthorWithInvalidBookIdsTest(Object id, int expectedStatusCode, String errorMessage) {
         Author author = authorHelper.createAuthorWithFakeData();
