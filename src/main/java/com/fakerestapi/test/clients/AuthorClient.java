@@ -19,10 +19,10 @@ public class AuthorClient extends BaseClient {
     }
 
     public Response updateAuthor(Object id, String authorJson) {
-        return putWithPathParam(ApiConfig.AUTHOR_BY_ID, "id", id, authorJson);
+        return putWithPathParam(ApiConfig.AUTHOR_BY_ID, JsonPathConstants.AUTHOR_ID, id, authorJson);
     }
 
     public Response deleteAuthor(Object id) {
-        return deleteWithPathParam(ApiConfig.AUTHOR_BY_ID, "id", id);
+        return deleteWithPathParam(ApiConfig.AUTHOR_BY_ID, JsonPathConstants.AUTHOR_ID, id);
     }
 }

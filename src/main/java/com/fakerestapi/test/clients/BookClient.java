@@ -1,6 +1,7 @@
 package com.fakerestapi.test.clients;
 
 import com.fakerestapi.test.config.ApiConfig;
+import com.fakerestapi.test.constants.JsonPathConstants;
 import io.restassured.response.Response;
 
 public class BookClient extends BaseClient {
@@ -10,7 +11,7 @@ public class BookClient extends BaseClient {
     }
 
     public Response getBookById(Object id) {
-        return getWithPathParam(ApiConfig.BOOK_BY_ID, "id", id);
+        return getWithPathParam(ApiConfig.BOOK_BY_ID, JsonPathConstants.BOOK_ID, id);
     }
 
     public Response addBook(String bookJson) {
@@ -18,10 +19,10 @@ public class BookClient extends BaseClient {
     }
 
     public Response updateBook(Object id, String bookJson) {
-        return putWithPathParam(ApiConfig.BOOK_BY_ID, "id", id, bookJson);
+        return putWithPathParam(ApiConfig.BOOK_BY_ID, JsonPathConstants.BOOK_ID, id, bookJson);
     }
 
     public Response deleteBook(Object id) {
-        return deleteWithPathParam(ApiConfig.BOOK_BY_ID, "id", id);
+        return deleteWithPathParam(ApiConfig.BOOK_BY_ID, JsonPathConstants.BOOK_ID, id);
     }
 }

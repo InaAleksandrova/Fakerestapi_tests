@@ -16,13 +16,4 @@ public class JsonPathConstants {
     public static final String FIRST_NAME = "firstName";
     public static final String LAST_NAME = "lastName";
 
-    //Json error responses fields
-    public static final String ERROR_TYPE = "type";
-    public static final String ERROR_TITLE = "title";
-    public static final String ERROR_STATUS = "status";
-    public static final String ERROR_TRACE_ID = "traceId";
-
-
-
-
 }
